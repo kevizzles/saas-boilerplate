@@ -1,109 +1,14 @@
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://dummy:dummy@localhost:5432/dummy"
+}
+
 generator client {
   provider = "prisma-client-js"
 }
 
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
+// Basic models for preview
 model User {
-  id                   String    @id @default(uuid())
-  email                String    @unique
-  isEmailVerified      Boolean   @default(false)
-  profilePictureUrl    String?
-  stripeCustomerId     String?   @unique
-  priceId              String?
-  name                 String?
-  nextQuotaRenewalDate DateTime?
-  subscriptionDate     DateTime?
-
-  subscription  Subscription?  @relation(fields: [subscriptionId], references: [id])
-  oauthAccounts OauthAccount[]
-  magicLinks    MagicLink[]
-  sessions      Session[]
-
-  ProductUsage   ProductUsage[]
-  subscriptionId String?
-}
-
-model Product {
-  id             String         @id @default(uuid())
-  name           String
-  quota          Int
-  subscriptionId String
-  subscription   Subscription   @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
-  ProductUsage   ProductUsage[]
-
-  @@unique([name, subscriptionId])
-}
-
-model ProductUsage {
-  id        String  @id @default(uuid())
-  userId    String
-  user      User    @relation(fields: [userId], references: [id])
-  productId String
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  remaining Int
-
-  @@unique([userId, productId])
-}
-
-enum Timeline {
-  MONTHLY
-  YEARLY
-  ONETIME
-}
-
-model Subscription {
-  id            String    @id @default(uuid())
-  planTitle     String
-  price         Decimal
-  timeline      Timeline? @default(MONTHLY)
-  description   String
-  stripePriceId String?
-  stripeLink    String?
-  features      Feature[]
-  products      Product[]
-  User          User[]
-
-  @@unique([planTitle, timeline])
-}
-
-model Feature {
-  id             String       @id @default(uuid())
-  label          String
-  subscriptionId String
-  subscription   Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
-
-  @@unique([label, subscriptionId])
-}
-
-model OauthAccount {
-  id             String   @id @default(uuid())
-  userId         String
-  provider       String
-  providerUserId String
-  accessToken    String
-  refreshToken   String?
-  expiresAt      DateTime
-  user           User     @relation(fields: [userId], references: [id])
-}
-
-model MagicLink {
-  id     Int    @id @default(autoincrement())
-  userId String
-  token  String
-  user   User   @relation(fields: [userId], references: [id])
-
-  @@unique([userId, token])
-}
-
-model Session {
-  id        String   @id @default(uuid())
-  userId    String
-  expiresAt DateTime
-  expiresIn Int
-
-  user User @relation(references: [id], fields: [userId], onDelete: Cascade)
+  id    Int     @id @default(autoincrement())
+  email String  @unique
 }
